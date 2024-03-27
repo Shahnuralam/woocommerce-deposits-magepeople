@@ -17,7 +17,7 @@ if ($storewide_deposit_enabled_details === 'yes') {
     // Display the deposit option
 ?>
     <div data-ajax-refresh="<?php echo $ajax_refresh; ?>" data-product_id="<?php echo $product->get_id(); ?>" class='webtomizer_wcdp_single_deposit_form <?php echo $basic_buttons ? 'basic-wc-deposits-options-form' : 'wc-deposits-options-form'; ?>'>
-        
+
         <?php
         if (!$has_payment_plans && $product->get_type() !== 'grouped') { ?>
             <label class='deposit-option'>
@@ -32,13 +32,27 @@ if ($storewide_deposit_enabled_details === 'yes') {
                 } ?>
                 <br>
                 Deposit Type:
-                <?php if ($storewide_deposit_amount_type) { ?>
+                <?php
+                $inherit_storewide_settings = get_post_meta($product->get_id(), '_wc_deposits_inherit_storewide_settings', true);
+                $enable_deposit = get_post_meta($product->get_id(), '_wc_deposits_enable_deposit', true);
+                
+                if ($inherit_storewide_settings === 'no' && $enable_deposit === 'yes') {
+                    // Display custom deposit amount and type if enabled
+                    $deposit_amount_type = get_post_meta($product->get_id(), '_wc_deposits_amount_type', true);
+                    $deposit_amount = get_post_meta($product->get_id(), '_wc_deposits_deposit_amount', true);
 
-                    <?php if ($storewide_deposit_amount) { ?>
-                        <span id='storewide-deposit-amount'><?php echo esc_html($storewide_deposit_amount); ?></span>
-                    <?php } ?>
-                    <span id='storewide-deposit-amount-type'><?php echo esc_html($storewide_deposit_amount_type); ?></span>
-                <?php } ?>
+                    if ($deposit_amount && $deposit_amount_type) { ?>
+                        <span id='wc_deposits_storewide_deposit_amount'><?php echo esc_html($deposit_amount); ?></span>
+                        <span id='wc_deposits_storewide_deposit_amount_type'><?php echo esc_html($deposit_amount_type); ?></span>
+                    <?php }
+                } elseif ($inherit_storewide_settings === 'yes' && $enable_deposit === 'yes') {
+                    // Display storewide deposit amount and type if enabled
+                    if ($storewide_deposit_amount && $storewide_deposit_amount_type) { ?>
+                        <span id='wc_deposits_storewide_deposit_amount'><?php echo esc_html($storewide_deposit_amount); ?></span>
+                        <span id='wc_deposits_storewide_deposit_amount_type'><?php echo esc_html($storewide_deposit_amount_type); ?></span>
+                    <?php }
+                }
+                ?>
             </label>
         <?php }
         ?>
@@ -100,5 +114,3 @@ if ($storewide_deposit_enabled_details === 'yes') {
         });
     });
 </script>
-
-

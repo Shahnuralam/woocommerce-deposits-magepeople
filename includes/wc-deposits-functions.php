@@ -12,6 +12,19 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+// Add "Pay Deposit" button next to "Add to Cart" button on product list.
+add_action('woocommerce_after_shop_loop_item', 'add_pay_deposit_button', 9);
+
+function add_pay_deposit_button() {
+    global $product;
+
+    // Check if deposits are enabled for the product.
+    if (wc_deposits_is_product_deposit_enabled($product->get_id())) {
+        echo '<a href="' . esc_url(get_permalink($product->get_id())) . '" class="button pay-deposit-button">' . __('Pay Deposit', 'Advanced Partial Payment and Deposit For Woocommerce') . '</a>';
+    }
+}
+
+
 /**
  * @return mixed
  */

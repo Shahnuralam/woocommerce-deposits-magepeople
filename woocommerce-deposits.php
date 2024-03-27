@@ -379,20 +379,22 @@ if (wc_deposits_woocommerce_is_active()) :
          * @return void
          */
         public function enqueue_styles()
-        {
-            if ($this->wc_version_disabled) return;
-            if (!$this->is_disabled()) {
-                wp_enqueue_style('toggle-switch', plugins_url('assets/css/toggle-switch.css', __FILE__), array(), WC_DEPOSITS_VERSION, 'screen');
-                wp_enqueue_style('wc-deposits-frontend-styles', plugins_url('assets/css/style.css', __FILE__), array(), WC_DEPOSITS_VERSION);
+{
+    if ($this->wc_version_disabled) return;
+    if (!$this->is_disabled()) {
+        wp_enqueue_style('toggle-switch', plugins_url('assets/css/toggle-switch.css', __FILE__), array(), WC_DEPOSITS_VERSION, 'screen');
+        wp_enqueue_style('wc-deposits-frontend-styles', plugins_url('assets/css/style.css', __FILE__), array(), WC_DEPOSITS_VERSION);
 
-                if (is_cart() || is_checkout()) {
-                    $suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
-                    wp_register_script('jquery-tiptip', WC()->plugin_url() . '/assets/js/jquery-tiptip/jquery.tipTip' . $suffix . '.js', array('jquery'), WC_VERSION, true);
-                    wp_enqueue_script('wc-deposits-cart', WC_DEPOSITS_PLUGIN_URL . '/assets/js/wc-deposits-cart.js', array('jquery'), WC_DEPOSITS_VERSION, true);
-                    wp_enqueue_script('jquery-tiptip');
-                }
-            }
+        if (is_cart() || is_checkout()) {
+            $suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
+            wp_register_script('jquery-tiptip', WC()->plugin_url() . '/assets/js/jquery-tiptip/jquery.tipTip' . $suffix . '.js', array('jquery'), WC_VERSION, true);
+            wp_enqueue_script('wc-deposits-cart', WC_DEPOSITS_PLUGIN_URL . '/assets/js/wc-deposits-cart.js', array('jquery'), WC_DEPOSITS_VERSION, true);
+            wp_enqueue_script('jquery-tiptip');
+            wp_enqueue_style('wc-deposits-frontend-styles', plugins_url('assets/css/style.css', __FILE__), array(), WC_DEPOSITS_VERSION);
         }
+    }
+}
+
 
         /**
          *  Early includes

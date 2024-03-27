@@ -49,7 +49,7 @@ class WC_Deposits_Cart
           
         add_filter('wc_deposits_cart_customer_validation', array($this, 'cart_customer_validation'));
         
-        add_action('woocommerce_after_shop_loop_item', array($this,'add_pay_deposit_button_to_shop_page'), 10);
+       
     }
     
     function cart_customer_validation($validated)
@@ -94,23 +94,7 @@ class WC_Deposits_Cart
     }
     
     
-    /*
-    pay deposit button off/on
-    */
-    
- // Add "Pay Deposit" button to shop page
-public function add_pay_deposit_button_to_shop_page() {
-    // Check if storewide deposit button is enabled
-    $storewide_deposit_button_enabled = get_option('wc_deposits_storewide_deposit_enabled_btn');
-    if ($storewide_deposit_button_enabled === 'yes') {
-        global $product;
-        // Check if product is purchasable
-        if ($product && $product->is_purchasable()) {
-            // Output "Pay Deposit" button
-            echo '<a href="' . esc_url($product->add_to_cart_url()) . '" class="button pay-deposit-button">' . esc_html__('Pay Deposit', 'your-text-domain') . '</a>';
-        }
-    }
-}
+ 
 
     /**
      * Prevents duplicates if the product is set to be individually sold.
@@ -372,6 +356,7 @@ public function get_item_data($item_data, $cart_item)
             'display' => wc_price($display_deposit, array('ex_tax_label' => $tax_display === 'no')),
             'value' => 'wc_deposit_amount',
             'class' => 'deposit-amount-section', // CSS class for deposit amount section
+             'style' => 'margin-bottom: revert !important; background-color: #f2f2f2 !important; color: black !important; padding: 0px !important;', // Inline CSS
         );
 
         $item_data[] = array(
