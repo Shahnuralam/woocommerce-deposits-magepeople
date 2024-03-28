@@ -60,7 +60,139 @@ p.form-row-last[class*="_wc_deposits_payment_plans"] .select2 , p.form-row-last[
 
 .wcdp.nav-tab {
     cursor: pointer;
+    padding: 20px;
+    background: #162748;
+    color: white;
+    border: 2px solid white;
+    margin-left: 1px;
 }
+
+.wcdp.nav-tab:hover {
+    background: #00aa6a; /* Change background color on hover */
+}
+
+.wcdp-nav-tab-active,
+.wcdp-nav-tab-active:focus,
+.wcdp-nav-tab-active:focus:active,
+.wcdp-nav-tab-active:hover {
+    background: #00aa6a !important;
+    color: white !important;
+    position: relative;
+}
+
+.wcdp-nav-tab-active:not(.nav-tab-deposits)::before {
+    content: ''; /* Create a pseudo-element */
+    position: absolute;
+    top: 50%; /* Position it at the middle vertically */
+    right: 0; /* Position it at the right side of the tab */
+    transform: translateY(-50%); /* Center vertically */
+    border: solid transparent;
+    border-width: 9px; /* Adjust the size of the arrow */
+    border-left-color: #0000ff; /* Match the background color */
+    transition: border-color 0.3s ease; /* Add a transition for border color */
+}
+
+.wcdp-nav-tab-active:not(.nav-tab-deposits):hover::before {
+    border-left-color: #d63638; /* Match the background color */
+}
+
+.wc_deposits_deposit_storewide_values{
+    background: #03a9f4 !important;
+    padding: 10px;
+    width: 43%;
+}
+
+/* Style the select element within the WooCommerce form table */
+.woocommerce table.form-table select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #555;
+    width: 100%;
+    max-width: 300px; /* Adjust the width as needed */
+    box-sizing: border-box;
+    outline: none;
+}
+
+/* Style the dropdown arrow */
+.woocommerce table.form-table select::after {
+    content: '\25BC'; /* Unicode character for down arrow */
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    pointer-events: none; /* Ensure the arrow doesn't interfere with clicking on the select */
+}
+
+/* Hover effect */
+.woocommerce table.form-table select:hover {
+    border-color: #999;
+}
+
+/* Focus effect */
+.woocommerce table.form-table select:focus {
+    border-color: #333;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+
+label[for="wc_deposits_storewide_deposit_enabled"] {
+    font-weight: 700 !important;
+    padding: 10px;
+}
+
+label[for="wc_deposits_storewide_deposit_enabled_details"] {
+    font-weight: 700 !important;
+    padding: 10px;
+}
+
+label[for="wc_deposits_storewide_deposit_enabled_btn"] {
+    font-weight: 700 !important;
+    padding: 10px;
+}
+label[for="wc_deposits_storewide_deposit_force_deposit"] {
+    font-weight: 700 !important;
+    padding: 10px;
+}
+label[for="wc_deposits_storewide_deposit_amount_type"] {
+    font-weight: 700 !important;
+    padding: 10px;
+}
+
+label[for="wc_deposits_storewide_deposit_amount"] {
+    font-weight: 700 !important;
+    padding: 10px;
+}
+label[for="wc_deposits_storewide_deposit_payment_plans"] {
+    font-weight: 700 !important;
+    padding: 10px;
+}
+.titledesc{
+    font-weight: 700 !important;
+    padding: 10px; 
+}
+
+#wc_deposits_deposit_storewide_values{
+    border: solid;
+}
+
+/* p.submit {
+    text-align: left !important;
+    width: 100% !important;
+    margin-top: 0px !important;
+    margin-left: -1px !important;
+    padding: 20px !important;
+    background: darkblue !important;
+    color: white !important;
+    border: 2px solid white !important;
+    margin-left: 1px !important;
+} */
+
 
 /*#payment_plan_details {*/
 /*    width :100%;*/

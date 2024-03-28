@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+
+
 // Add "Pay Deposit" button next to "Add to Cart" button on product list.
 add_action('woocommerce_after_shop_loop_item', 'add_pay_deposit_button', 9);
 

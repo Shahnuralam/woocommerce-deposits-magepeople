@@ -114,6 +114,8 @@ if (wc_deposits_woocommerce_is_active()) :
          * @var bool
          */
         public $wc_version_disabled = false;
+        public $admin_notices = array();
+
 
         /**
          *  Returns the global instance
@@ -562,16 +564,23 @@ if (wc_deposits_woocommerce_is_active()) :
          *
          * @return void
          */
-        public function show_admin_notices()
-        {
+        public function show_admin_notices() {
+    if (is_array($this->admin_notices) && !empty($this->admin_notices)) {
+        try {
             foreach ($this->admin_notices as $notice) {
                 $dismissible = isset($notice['dismissible']) && $notice['dismissible'] ? 'is-dismissible' : '';
                 ?>
                 <div class='<?php echo $dismissible; ?> notice notice-<?php echo esc_attr($notice['type']); ?>'>
-                    <p><?php echo $notice['content']; ?></p></div>
+                    <p><?php echo $notice['content']; ?></p>
+                </div>
                 <?php
             }
+        } catch (Exception $e) {
+            // Silence any exceptions
         }
+    }
+}
+
 
         /**
          *  Add a new notice

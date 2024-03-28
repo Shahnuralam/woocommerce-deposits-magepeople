@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
  * @brief Adds a new panel to the WooCommerce Settings
  *
  */
+ 
+ 
 class WC_Deposits_Admin_Settings
 {
 
@@ -81,55 +83,81 @@ class WC_Deposits_Admin_Settings
      * @param array $settings ...
      * @return void
      */
-    public function settings_tabs_wc_deposits()
-    {
+public function settings_tabs_wc_deposits()
+{
+    $mode_notice = wcdp_checkout_mode() ? '<span style="padding:5px 10px; color:#fff; background-color:rgba(146, 52, 129, 0.8);">' . esc_html__('Checkout Mode Enabled', 'Advanced Partial Payment and Deposit For Woocommerce') . '</span>' : '';
+    $debug_mode_notice = get_option('wc_deposits_debug_mode', 'no') === 'yes' ? '<span style="padding:5px 10px; color:#fff; background-color:rgba(255,63,76,0.8);">' . esc_html__('Debugging Mode Enabled', 'Advanced Partial Payment and Deposit For Woocommerce') . '</span>' : '';
+    ?>
 
-        $mode_notice = wcdp_checkout_mode() ? '<span style="padding:5px 10px; color:#fff; background-color:rgba(146, 52, 129, 0.8);">' . esc_html__('Checkout Mode Enabled', 'Advanced Partial Payment and Deposit For Woocommerce') . '</span>' : '';
-        $debug_mode_notice = get_option('wc_deposits_debug_mode', 'no') === 'yes' ? '<span style="padding:5px 10px; color:#fff; background-color:rgba(255,63,76,0.8);">' . esc_html__('Debugging Mode Enabled', 'Advanced Partial Payment and Deposit For Woocommerce') . '</span>' : '';
-        ?>
+    <div style="background-color: #162748; color: white; padding: 20px;">
+                <h2 style="color: white;"><?php echo esc_html__('Deposit & Partial Payment Solution for WooCommerce - WpDepositly | MagePeople', 'Advanced Partial Payment and Deposit For Woocommerce'); ?></h2>
+                <?php echo $mode_notice . $debug_mode_notice; ?>
+            </div>
 
-        <h2><?php echo esc_html__('Woocommerce Deposits Settings', 'Advanced Partial Payment and Deposit For Woocommerce');
-            echo '&nbsp;&nbsp;' . $mode_notice . '&nbsp;&nbsp;' . $debug_mode_notice ?> </h2>
-        <?php $settings_tabs = apply_filters('wc_deposits_settings_tabs', array(
+    <?php 
+    $settings_tabs = apply_filters('wc_deposits_settings_tabs', array(
         'wcdp_general' => esc_html__('General Settings', 'Advanced Partial Payment and Deposit For Woocommerce'),
         'display_text' => esc_html__('Display & Text', 'Advanced Partial Payment and Deposit For Woocommerce'),
         'checkout_mode' => esc_html__('Checkout Mode', 'Advanced Partial Payment and Deposit For Woocommerce'),
         'second_payment' => esc_html__('Future Payments & Reminders', 'Advanced Partial Payment and Deposit For Woocommerce'),
-        'gateways' => esc_html__('Gateways', 'Advanced Partial Payment and Deposit For Woocommerce'),
-       
-    )); ?>
-        <div class="nav-tab-wrapper wcdp-nav-tab-wrapper">
+        'gateways' => esc_html__('Gateways', 'Advanced Partial Payment and Deposit For Woocommerce')
+    ));
+
+    ?>
+
+    <div style="display: flex; ">
+        <div class="wcdp-nav-tab-wrapper" style="display: flex; background: #162748; flex-direction: column; margin-top: 20px;">
             <?php
             $count = 0;
             foreach ($settings_tabs as $key => $tab_name) {
-
                 $url = admin_url('admin.php?page=wc-settings&tab=wc-deposits&section=' . $key);
-
-
                 $count++;
-                $active = isset($_GET['section']) ? $key === $_GET['section'] ? true : false : $count === 1;
+                $active = isset($_GET['section']) ? $key === $_GET['section'] : $count === 1;
                 ?>
-                <a href="<?php echo $url; ?>" class="wcdp nav-tab <?php echo $active ? 'nav-tab-active' : ''; ?>"
-                   data-target="<?php echo $key; ?>"><?php echo $tab_name; ?></a>
+                <a href="<?php echo $url; ?>" class="wcdp nav-tab <?php echo $active ? 'wcdp-nav-tab-active' : ''; ?>" data-target="<?php echo $key; ?>"><?php echo $tab_name; ?></a>
                 <?php
             }
             ?>
-
         </div>
-        <?php
-        // echo tabs content
-        $count = 0;
-        foreach ($settings_tabs as $key => $tab_name) {
-            $count++;
-            $active = isset($_GET['section']) ? $key === $_GET['section'] ? true : false : $count === 1;
-            if (method_exists($this, "tab_{$key}_output")) {
-                $this->{"tab_{$key}_output"}($active);
 
+        <div style="flex-grow: 1; padding-left: 20px;background: white;">
+            
+
+            <?php
+            // echo tabs content
+            $count = 0;
+            foreach ($settings_tabs as $key => $tab_name) {
+                $count++;
+                $active = isset($_GET['section']) ? $key === $_GET['section'] : $count === 1;
+                if (method_exists($this, "tab_{$key}_output")) {
+                    $this->{"tab_{$key}_output"}($active);
+                }
             }
-        }
-        //allow addons to add their own tab content
-        do_action('wc_deposits_after_settings_tabs_content');
-    }
+            // allow addons to add their own tab content
+            do_action('wc_deposits_after_settings_tabs_content');
+            ?>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+    var tabs = document.querySelectorAll('.wcdp.nav-tab');
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function(event) {
+            // Remove active class from all tabs
+            tabs.forEach(function(t) {
+                t.classList.remove('wcdp-nav-tab-active');
+            });
+            // Add active class to the clicked tab
+            tab.classList.add('wcdp-nav-tab-active');
+        });
+    });
+});
+
+        </script>
+    </div>
+<?php
+}
+
+
 
     /*** BEGIN TABS CONTENT CALLBACKS **/
 
@@ -137,7 +165,7 @@ class WC_Deposits_Admin_Settings
     {
         $class = $active ? '' : 'hidden';
         ?>
-        <div id="wcdp_general" class="wcdp-tab-content <?php echo $class; ?>">
+        <div id="wcdp_general" class="wcdp-tab-content  <?php echo $class; ?>">
 
             <?php
             $roles_array = array();
@@ -171,7 +199,7 @@ class WC_Deposits_Admin_Settings
                     'name' => esc_html__('Deposit Storewide Values', 'Advanced Partial Payment and Deposit For Woocommerce'),
                     'type' => 'title',
                     'desc' => '',
-                    'id' => 'wc_deposits_deposit_storewide_values'
+                    'id' => 'wc_deposits_deposit_storewide_values',
                 ),
 
                 'enable_storewide_deposit' => array(
@@ -1001,55 +1029,7 @@ class WC_Deposits_Admin_Settings
     /*** END  DEPOSIT OPTIONS CUSTOM FIELDS CALLBACKS **/
 
 
-    function verify_purchase_code()
-    {
-
-
-        if (!wp_verify_nonce($_POST['nonce'], 'wcdp_verify_purchase_code'))
-            wp_die();
-
-
-        $purchase_code = isset($_POST['purchase_code']) && !empty($_POST['purchase_code']) ? $_POST['purchase_code'] : false;
-        if ($purchase_code) {
-
-
-            update_option('wc_deposits_purchase_code', $purchase_code);
-
-            //verify code
-            $verify_code = WCDP()->admin_auto_updates->verify_purchase_code($purchase_code);
-
-            if ($verify_code === 'valid') {
-
-
-                //do not show update option anymore
-                update_option('wc_deposits_hide_activation_notice', 'yes');
-                update_option('wc_deposits_purchase_code_verified', 'yes');
-
-                wp_send_json_success(__('Thank You. Purchase code verified successfully.', 'Advanced Partial Payment and Deposit For Woocommerce'));
-
-            } elseif ($verify_code === 'invalid') {
-
-                update_option('wc_deposits_purchase_code_verified', 'no');
-                wp_send_json_error(__('Invalid Purchase code', 'Advanced Partial Payment and Deposit For Woocommerce'));
-
-            } else {
-                $message = sprintf(__('Error verifying purchase code, please try again later. If issue persist, please submit a  ticket to our <a target="_blank" href="%s"> support platform. </a> ', 'Advanced Partial Payment and Deposit For Woocommerce'), 'https://webtomizer.ticksy.com');
-
-                if(is_wp_error($verify_code)){
-                    $message .= '<br/>'.sprintf(esc_html__('Error details: %s','Advanced Partial Payment and Deposit For Woocommerce'),$verify_code->get_error_message());
-                }
-                //error contacting server please try again later or contact plugin support
-                update_option('wc_deposits_purchase_code_verified', 'no');
-                wp_send_json_error($message);
-
-            }
-
-        }
-
-
-        wp_die();
-
-    }
+   
 
     /**
      * @brief Save all settings on POST
