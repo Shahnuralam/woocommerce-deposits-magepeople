@@ -20,11 +20,15 @@ add_action('woocommerce_after_shop_loop_item', 'add_pay_deposit_button', 9);
 function add_pay_deposit_button() {
     global $product;
 
-    // Check if deposits are enabled for the product.
-    if (wc_deposits_is_product_deposit_enabled($product->get_id())) {
+    // Check if wc_deposits_storewide_deposit_enabled_btn is set to yes
+    $storewide_deposit_btn_enabled = get_option('wc_deposits_storewide_deposit_enabled_btn', 'no');
+
+    // Check if deposits are enabled for the product and wc_deposits_storewide_deposit_enabled_btn is yes
+    if (wc_deposits_is_product_deposit_enabled($product->get_id()) && $storewide_deposit_btn_enabled === 'yes') {
         echo '<a href="' . esc_url(get_permalink($product->get_id())) . '" class="button pay-deposit-button">' . __('Pay Deposit', 'Advanced Partial Payment and Deposit For Woocommerce') . '</a>';
     }
 }
+
 
 
 /**

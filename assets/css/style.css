@@ -155,12 +155,28 @@
 .wcdp-payment-plans {
     padding:10px;
 }
-.wcdp-payment-plans input{
-
-}
 .wcdp-payment-plans a {
     cursor : pointer;
+    font-size: larger;
 }
 .wcdp-payment-plans ul {
     list-style:none!important;
+}
+.payment-plan-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payment-plan-table th, .payment-plan-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.payment-plan-table th {
+    background-color: #f2f2f2;
+}
+
+.payment-plan-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
 }

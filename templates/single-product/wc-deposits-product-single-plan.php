@@ -48,7 +48,7 @@ if (!defined('ABSPATH')) {
                     : <?php echo wc_price($payment_plan['deposit_amount']); ?></p>
             </div>
 
-            <table>
+            <table class="payment-plan-table">
                 <thead>
                 <th><?php esc_html_e('Payment Date', 'Advanced Partial Payment and Deposit For Woocommerce') ?></th>
                 <th><?php esc_html_e('Amount', 'Advanced Partial Payment and Deposit For Woocommerce') ?></th>

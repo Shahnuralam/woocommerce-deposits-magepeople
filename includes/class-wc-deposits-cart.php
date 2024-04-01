@@ -300,83 +300,125 @@ class WC_Deposits_Cart
      * @param $cart_item
      * @return array
      */
-public function get_item_data($item_data, $cart_item)
+
+     public function get_item_data($item_data, $cart_item)
 {
     // Check if storewide deposit details are enabled
-    $storewide_deposit_enabled_details = get_option('wc_deposits_storewide_deposit_enabled_details');
+    $storewide_deposit_enabled_details = get_option('wc_deposits_storewide_deposit_enabled_details', 'no');
     if ($storewide_deposit_enabled_details !== 'yes') {
-        return $item_data; // Return item data as is if storewide deposit details are not enabled
+        return $item_data;
     }
 
-    if (!isset(WC()->cart->deposit_info['display_ui']) || WC()->cart->deposit_info['display_ui'] !== true) return $item_data;
+    if (!isset(WC()->cart->deposit_info['display_ui']) || WC()->cart->deposit_info['display_ui'] !== true) {
+        return $item_data;
+    }
 
     if (isset($cart_item['deposit'], $cart_item['deposit']['enable']) && $cart_item['deposit']['enable'] === 'yes' && isset($cart_item['deposit']['deposit'])) {
 
         $product = $cart_item['data'];
-        if (!$product) return $item_data;
+        if (!$product) {
+            return $item_data;
+        }
 
         $tax_display = get_option('wc_deposits_tax_display_cart_item', 'no');
 
-        $deposit = $cart_item['deposit']['deposit'];
-
+        $deposit = floatval($cart_item['deposit']['deposit']);
         $tax = 0.0;
         $tax_total = 0.0;
         if ($tax_display === 'yes') {
-            $tax = $cart_item['deposit']['tax'];
-            $tax_total = $cart_item['deposit']['tax_total'];
+            $tax = floatval($cart_item['deposit']['tax']);
+            $tax_total = floatval($cart_item['deposit']['tax_total']);
         }
 
         $display_deposit = round($deposit + $tax, wc_get_price_decimals());
         $display_remaining = round($cart_item['deposit']['remaining'] + ($tax_total - $tax), wc_get_price_decimals());
         $deposit_amount_text = esc_html__(get_option('wc_deposits_deposit_amount_text'), 'Advanced Partial Payment and Deposit For Woocommerce');
-        if (empty($deposit_amount_text)) {
-            $deposit_amount_text = esc_html__('Deposit Amount', 'Advanced Partial Payment and Deposit For Woocommerce');
-        }
+        $deposit_amount_text = !empty($deposit_amount_text) ? $deposit_amount_text : esc_html__('Deposit Amount', 'Advanced Partial Payment and Deposit For Woocommerce');
 
-        // Fetch the storewide deposit type and amount options
-        $storewide_deposit_type = get_option('wc_deposits_storewide_deposit_amount_type', 'percent');
-        $storewide_deposit_amount = get_option('wc_deposits_storewide_deposit_amount', '50');
-
-        // Determine the display text for deposit type
-        $deposit_type_text = '';
-        if ($storewide_deposit_type === 'fixed') {
-            $deposit_type_text = esc_html__('Fixed', 'Advanced Partial Payment and Deposit For Woocommerce');
-        } elseif ($storewide_deposit_type === 'percent') {
-            $deposit_type_text = esc_html__('Percentage', 'Advanced Partial Payment and Deposit For Woocommerce');
-        } elseif ($storewide_deposit_type === 'payment_plan') {
-            $deposit_type_text = esc_html__('Payment plan', 'Advanced Partial Payment and Deposit For Woocommerce');
-        }
-
-        // Concatenate deposit type and amount for display
-        $deposit_display_text = $storewide_deposit_amount . ' ' . $deposit_type_text;
-
-        // Add CSS classes for styling
+        // Append Deposit Amount
         $item_data[] = array(
-            'name' => esc_html__('Deposit Amount', 'Advanced Partial Payment and Deposit For Woocommerce'),
+            'name' => $deposit_amount_text,
             'display' => wc_price($display_deposit, array('ex_tax_label' => $tax_display === 'no')),
             'value' => 'wc_deposit_amount',
-            'class' => 'deposit-amount-section', // CSS class for deposit amount section
-             'style' => 'margin-bottom: revert !important; background-color: #f2f2f2 !important; color: black !important; padding: 0px !important;', // Inline CSS
         );
 
+        // Append Future Payments
+        $future_payment_amount_text = esc_html__(get_option('wc_deposits_second_payment_text'), 'Advanced Partial Payment and Deposit For Woocommerce');
+        $future_payment_amount_text = !empty($future_payment_amount_text) ? $future_payment_amount_text : esc_html__('Future Payments', 'Advanced Partial Payment and Deposit For Woocommerce');
         $item_data[] = array(
-            'name' => esc_html__('Future Payments', 'Advanced Partial Payment and Deposit For Woocommerce'),
+            'name' => $future_payment_amount_text,
             'display' => wc_price($display_remaining, array('ex_tax_label' => $tax_display === 'no')),
             'value' => 'wc_deposit_future_payments_amount',
-            'class' => 'future-payments-section', // CSS class for future payments section
         );
 
-        // Include deposit type and amount in item data
-        $item_data[] = array(
-            'name' => esc_html__('Deposit Type', 'Advanced Partial Payment and Deposit For Woocommerce'),
-            'display' => $deposit_display_text,
-            'value' => 'wc_deposit_type_and_amount',
-            'class' => 'deposit-type-section', // CSS class for deposit type section
-        );
+        // Check deposit settings
+        $inherit_settings = sanitize_text_field(get_post_meta($product->get_id(), '_wc_deposits_inherit_storewide_settings', true));
+        $enable_deposit = sanitize_text_field(get_post_meta($product->get_id(), '_wc_deposits_enable_deposit', true));
+        $deposit_type = sanitize_text_field(get_post_meta($product->get_id(), '_wc_deposits_amount_type', true)); // Fetch deposit type
+        $payment_plan_type = get_option('wc_deposits_storewide_deposit_amount_type', '');
+        $payment_plan_amount = get_option('wc_deposits_storewide_deposit_amount', '');
+
+        if ($inherit_settings === 'no' && $enable_deposit === 'yes' && $deposit_type !== 'payment_plan') {
+            // Append Deposit Type
+            $deposit_amount = floatval(get_post_meta($product->get_id(), '_wc_deposits_deposit_amount', true));
+            if (!empty($deposit_type) && $deposit_amount > 0) {
+                // Check if the deposit type is a percentage
+                if ($deposit_type === 'percent') {
+                    $deposit_info = $deposit_type . ": " . $deposit_amount . "%";
+                } else {
+                    $deposit_info = $deposit_type . ": " . wc_price($deposit_amount, array('ex_tax_label' => $tax_display === 'no'));
+                }
+                $item_data[] = array(
+                    'name' => esc_html__('Deposit Type', 'Advanced Partial Payment and Deposit For Woocommerce'),
+                    'display' => $deposit_info,
+                    'value' => 'wc_deposit_type',
+                );
+            }
+        } elseif ($inherit_settings === 'yes' && $enable_deposit === 'yes' && $payment_plan_type !== 'payment_plan') {
+            // Append Storewide Deposit Type
+            if (!empty($payment_plan_type) && $payment_plan_amount > 0) {
+                // Check if the deposit type is a percentage
+                if ($payment_plan_type === 'percent') {
+                    $deposit_info = $payment_plan_type . ": " . $payment_plan_amount . "%";
+                } else {
+                    $deposit_info = $payment_plan_type . ": " . wc_price($payment_plan_amount, array('ex_tax_label' => $tax_display === 'no'));
+                }
+                $item_data[] = array(
+                    'name' => esc_html__('Deposit Type', 'Advanced Partial Payment and Deposit For Woocommerce'),
+                    'display' => $deposit_info,
+                    'value' => 'wc_deposit_type',
+                );
+            }
+        }
+
+        // Append Payment Plan if available
+        if (isset($cart_item['deposit']['payment_plan'])) {
+            $payment_plan = get_term_by('id', $cart_item['deposit']['payment_plan'], WC_DEPOSITS_PAYMENT_PLAN_TAXONOMY);
+            if ($payment_plan) {
+                $item_data[] = array(
+                    'name' => esc_html__('Payment plan', 'Advanced Partial Payment and Deposit For Woocommerce'),
+                    'display' => $payment_plan->name,
+                    'value' => WC_DEPOSITS_PAYMENT_PLAN_TAXONOMY,
+                );
+            }
+            //todo: render payment plan details either per item or in checkout directly (better checkout)
+        }
     }
 
     return $item_data;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

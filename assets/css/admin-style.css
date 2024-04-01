@@ -140,6 +140,25 @@ p.form-row-last[class*="_wc_deposits_payment_plans"] .select2 , p.form-row-last[
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
+.wcdp-custom-container h2,
+.wcdp-custom-container h3 {
+    color: #1d2327cf;
+    color: #1d2327cf;
+    font-size: 20px !important;
+    margin: 1em 0 !important;
+    background: cadetblue;
+    padding: 20px !important;
+    /* width: 35%; */
+    font-weight: 700 !important;
+}
+.wcdp-custom-container .submit {
+    background: indigo !important;
+    padding: 10px !important;
+    margin-top: 1px !important;
+}
+
+
+
 
 label[for="wc_deposits_storewide_deposit_enabled"] {
     font-weight: 700 !important;

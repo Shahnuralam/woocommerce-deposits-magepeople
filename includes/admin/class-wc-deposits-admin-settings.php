@@ -53,7 +53,6 @@ class WC_Deposits_Admin_Settings
 
                 wp_enqueue_style('wp-color-picker');
                 wp_enqueue_script('jquery-ui-datepicker');
-
                 wp_enqueue_script('wc-deposits-admin-settings', WC_DEPOSITS_PLUGIN_URL . '/assets/js/admin/admin-settings.js', array('jquery', 'wp-color-picker'), WC_DEPOSITS_VERSION);
                 wp_localize_script('wc-deposits-admin-settings', 'wc_deposits', array(
                     'ajax_url' => admin_url('admin-ajax.php'),
@@ -85,14 +84,17 @@ class WC_Deposits_Admin_Settings
      */
 public function settings_tabs_wc_deposits()
 {
-    $mode_notice = wcdp_checkout_mode() ? '<span style="padding:5px 10px; color:#fff; background-color:rgba(146, 52, 129, 0.8);">' . esc_html__('Checkout Mode Enabled', 'Advanced Partial Payment and Deposit For Woocommerce') . '</span>' : '';
+    $mode_notice = wcdp_checkout_mode() ? '<span style="padding:5px 10px; color:#fff; position: relative; top: 10px; background-color:rgba(146, 52, 129, 0.8);">' . esc_html__('Checkout Mode Enabled', 'Advanced Partial Payment and Deposit For Woocommerce') . '</span>' : '';
     $debug_mode_notice = get_option('wc_deposits_debug_mode', 'no') === 'yes' ? '<span style="padding:5px 10px; color:#fff; background-color:rgba(255,63,76,0.8);">' . esc_html__('Debugging Mode Enabled', 'Advanced Partial Payment and Deposit For Woocommerce') . '</span>' : '';
     ?>
 
-    <div style="background-color: #162748; color: white; padding: 20px;">
-                <h2 style="color: white;"><?php echo esc_html__('Deposit & Partial Payment Solution for WooCommerce - WpDepositly | MagePeople', 'Advanced Partial Payment and Deposit For Woocommerce'); ?></h2>
-                <?php echo $mode_notice . $debug_mode_notice; ?>
-            </div>
+<div style="background-color: #162748; color: white; padding: 20px;">
+    <h2 style="color: white; margin: 0;"><?php echo esc_html__('Deposit & Partial Payment Solution for WooCommerce - WpDepositly | MagePeople', 'Advanced Partial Payment and Deposit For Woocommerce'); ?><span style="font-size: 0.8em;"> - Version: 2.2.5</span></h2>
+    <?php echo $mode_notice . $debug_mode_notice; ?>
+</div>
+
+
+
 
     <?php 
     $settings_tabs = apply_filters('wc_deposits_settings_tabs', array(
@@ -138,21 +140,41 @@ public function settings_tabs_wc_deposits()
             ?>
         </div>
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
-    var tabs = document.querySelectorAll('.wcdp.nav-tab');
-    tabs.forEach(function(tab) {
-        tab.addEventListener('click', function(event) {
+    document.addEventListener("DOMContentLoaded", function() {
+        var tabs = document.querySelectorAll('.wcdp.nav-tab');
+
+        // Function to handle tab click
+        function handleTabClick(event) {
             // Remove active class from all tabs
-            tabs.forEach(function(t) {
-                t.classList.remove('wcdp-nav-tab-active');
+            tabs.forEach(function(tab) {
+                tab.classList.remove('wcdp-nav-tab-active');
             });
             // Add active class to the clicked tab
-            tab.classList.add('wcdp-nav-tab-active');
-        });
-    });
-});
+            event.target.classList.add('wcdp-nav-tab-active');
+            // Store active tab index in sessionStorage
+            var tabIndex = Array.from(tabs).indexOf(event.target);
+            sessionStorage.setItem('activeTabIndex', tabIndex);
+        }
 
-        </script>
+        // Add click event listener to each tab
+        tabs.forEach(function(tab) {
+            tab.addEventListener('click', handleTabClick);
+        });
+
+        // Check if there's a stored active tab index and apply active class
+        var activeTabIndex = sessionStorage.getItem('activeTabIndex');
+        if (activeTabIndex !== null) {
+            // Remove active class from all tabs (again to ensure no conflict)
+            tabs.forEach(function(tab) {
+                tab.classList.remove('wcdp-nav-tab-active');
+            });
+            // Add active class to the tab based on stored index
+            tabs[activeTabIndex].classList.add('wcdp-nav-tab-active');
+        }
+    });
+</script>
+
+
     </div>
 <?php
 }
@@ -165,7 +187,8 @@ public function settings_tabs_wc_deposits()
     {
         $class = $active ? '' : 'hidden';
         ?>
-        <div id="wcdp_general" class="wcdp-tab-content  <?php echo $class; ?>">
+        
+        <div id="wcdp_general" class="wcdp-tab-content wcdp-general-tab <?php echo $class; ?>">
 
             <?php
             $roles_array = array();
@@ -187,6 +210,7 @@ public function settings_tabs_wc_deposits()
                 $all_plans[$payment_plan->term_id] = $payment_plan->name;
             }
             ?>
+        <div class="wcdp-custom-container">
             <?php $general_settings = array(
 
 
@@ -200,6 +224,7 @@ public function settings_tabs_wc_deposits()
                     'type' => 'title',
                     'desc' => '',
                     'id' => 'wc_deposits_deposit_storewide_values',
+                    'class' => 'deposits_deposit_storewide_values',
                 ),
 
                 'enable_storewide_deposit' => array(
@@ -236,7 +261,7 @@ public function settings_tabs_wc_deposits()
                         'no' => esc_html__('No', 'Advanced Partial Payment and Deposit For Woocommerce'),
                         'yes' => esc_html__('Yes', 'Advanced Partial Payment and Deposit For Woocommerce'),
                     ),
-                    'desc' => esc_html__('On/Off Pay Deposit button in product list', 'Advanced Partial Payment and Deposit For Woocommerce'),
+                    'desc' => esc_html__('Choose whether to enable the Pay Deposit button in the product list.', 'Advanced Partial Payment and Deposit For Woocommerce'),
                     'id' => 'wc_deposits_storewide_deposit_enabled_btn',
                     'default' => 'yes'
                 ),
@@ -437,14 +462,14 @@ public function settings_tabs_wc_deposits()
                 ),
 
             );
-
+           
 
 
             woocommerce_admin_fields($general_settings);
 
             ?>
             <?php do_action('wc_deposits_settings_tabs_general_tab'); ?>
-
+        </div>
         </div>
         <?php
     }
@@ -454,7 +479,7 @@ public function settings_tabs_wc_deposits()
 
         $class = $active ? '' : 'hidden';
         ?>
-        <div id="display_text" class="wcdp-tab-content wrap <?php echo $class; ?>">
+        <div id="display_text" class="wcdp-tab-content wrap wcdp-custom-container <?php echo $class; ?>">
             <?php
             $text_to_replace = esc_html__('Text to replace ', 'Advanced Partial Payment and Deposit For Woocommerce');
 
@@ -641,7 +666,7 @@ public function settings_tabs_wc_deposits()
     {
         $class = $active ? '' : 'hidden';
         ?>
-        <div id="checkout_mode" class="wcdp-tab-content wrap <?php echo $class; ?>">
+        <div id="checkout_mode" class="wcdp-tab-content wrap wcdp-custom-container <?php echo $class; ?>">
             <?php
 
             $cart_checkout_settings = array(
@@ -743,7 +768,7 @@ public function settings_tabs_wc_deposits()
         $class = $active ? '' : 'hidden';
 
         ?>
-        <div id="second_payment" class="wcdp-tab-content wrap <?php echo $class; ?>" >
+        <div id="second_payment" class="wcdp-tab-content wrap wcdp-custom-container <?php echo $class; ?>" >
 
 
             <?php
@@ -860,7 +885,7 @@ public function settings_tabs_wc_deposits()
         $class = $active ? '' : 'hidden';
 
         ?>
-        <div id="gateways" class="wcdp-tab-content wrap <?php echo $class; ?>">
+        <div id="gateways" class="wcdp-tab-content wrap wcdp-custom-container <?php echo $class; ?>">
 
             <?php
 
@@ -977,8 +1002,8 @@ public function settings_tabs_wc_deposits()
             <b><?php echo esc_html__('If you would like to send out all partial payment reminders on a specific date in the future, set a date below.', 'Advanced Partial Payment and Deposit For Woocommerce'); ?></b>
         </p>
         <p> <?php echo esc_html__('Next Custom Reminder Date :', 'Advanced Partial Payment and Deposit For Woocommerce') ?> <input type="text"
-                                                                                              name="wc_deposits_reminder_datepicker"
-                                                                                              id="reminder_datepicker">
+         name="wc_deposits_reminder_datepicker"
+            id="reminder_datepicker">
         </p>
         <?php
         echo ob_get_clean();
